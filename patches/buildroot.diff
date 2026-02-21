@@ -1,3 +1,23 @@
+diff --git a/board/pluto/S40network b/board/pluto/S40network
+index 067bbdc010..0cf76cd552 100644
+--- a/board/pluto/S40network
++++ b/board/pluto/S40network
+@@ -19,6 +19,7 @@ create_system_files () {
+ 	IPADDR=`fw_printenv -n ipaddr 2> /dev/null || echo 192.168.2.1`
+ 	IPADDR_HOST=`fw_printenv -n ipaddr_host 2> /dev/null || echo 192.168.2.10`
+ 	NETMASK=`fw_printenv -n netmask 2> /dev/null || echo 255.255.255.0`
++	ETHADDR= fw_printenv -n ethaddr 2> /dev/null || echo 00:0a:35:01:01:01
+ 
+ 	ETH_IPADDR=`fw_printenv -n ipaddr_eth 2> /dev/null`
+ 	ETH_NETMASK=`fw_printenv -n netmask_eth 2> /dev/null || echo 255.255.255.0`
+@@ -51,6 +52,7 @@ create_system_files () {
+ 	else
+ 		echo -e "iface eth0 inet dhcp\n" >> $IFAC
+ 	fi
++	echo -e "\tpre-up /sbin/ip link set eth0 address $ETHADDR" >>$IFAC
+ 
+ 	### /etc/wpa.conf ###
+ 	if [ -n "$WLAN_SSID" ]
 diff --git a/board/pluto/busybox-1.25.0.config b/board/pluto/busybox-1.25.0.config
 index 88728cc9f2..78815511b9 100644
 --- a/board/pluto/busybox-1.25.0.config
