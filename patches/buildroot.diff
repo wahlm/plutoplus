@@ -1,5 +1,5 @@
 diff --git a/board/pluto/S40network b/board/pluto/S40network
-index 067bbdc010..9a068c1ca6 100644
+index 067bbdc010..e07bb8de5e 100644
 --- a/board/pluto/S40network
 +++ b/board/pluto/S40network
 @@ -12,6 +12,7 @@ create_system_files () {
@@ -18,18 +18,19 @@ index 067bbdc010..9a068c1ca6 100644
  
  	ETH_IPADDR=`fw_printenv -n ipaddr_eth 2> /dev/null`
  	ETH_NETMASK=`fw_printenv -n netmask_eth 2> /dev/null || echo 255.255.255.0`
-@@ -31,6 +33,10 @@ create_system_files () {
+@@ -31,6 +33,11 @@ create_system_files () {
  	UDC_HANDLE_SUSPEND=`fw_printenv -n udc_handle_suspend 2> /dev/null || echo 0`
  	USB_ETH_MODE=`fw_printenv -n usb_ethernet_mode 2> /dev/null || echo rndis`
  
 +	### /sbin/set-mac.sh ###
 +	echo "#! /bin/sh" >$SET_MAC
 +	echo "/sbin/ip link set eth0 address $(/usr/sbin/fw_printenv ethaddr | /usr/bin/cut -d '=' -f2)" >>$SET_MAC
++	chmod 755 $SET_MAC
 +
  	### /etc/udhcpd.conf ###
  	echo "start $IPADDR_HOST" > $UDHCPD_CONF
  	echo "end $IPADDR_HOST" >> $UDHCPD_CONF
-@@ -47,10 +53,11 @@ create_system_files () {
+@@ -47,10 +54,11 @@ create_system_files () {
  	if [ -n "$ETH_IPADDR" ]
  	then
  		echo -e "iface eth0 inet static" >> $IFAC
