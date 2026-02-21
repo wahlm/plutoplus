@@ -1,20 +1,45 @@
 diff --git a/board/pluto/S40network b/board/pluto/S40network
-index 067bbdc010..0cf76cd552 100644
+index 067bbdc010..9a068c1ca6 100644
 --- a/board/pluto/S40network
 +++ b/board/pluto/S40network
-@@ -19,6 +19,7 @@ create_system_files () {
+@@ -12,6 +12,7 @@ create_system_files () {
+ 	UDHCPD_CONF=/etc/udhcpd.conf
+ 	CONF=/opt/config.txt
+ 	IFAC=/etc/network/interfaces
++	SET_MAC=/sbin/set-mac.sh
+ 
+ 	HOSTNAME=`fw_printenv -n hostname 2> /dev/null || cat /etc/hostname`
+ 	echo $HOSTNAME > /etc/hostname
+@@ -19,6 +20,7 @@ create_system_files () {
  	IPADDR=`fw_printenv -n ipaddr 2> /dev/null || echo 192.168.2.1`
  	IPADDR_HOST=`fw_printenv -n ipaddr_host 2> /dev/null || echo 192.168.2.10`
  	NETMASK=`fw_printenv -n netmask 2> /dev/null || echo 255.255.255.0`
-+	ETHADDR= fw_printenv -n ethaddr 2> /dev/null || echo 00:0a:35:01:01:01
++	ETHADDR= fw_printenv -n ethaddr 2> /dev/null || echo "00:0a:35:01:01:01"
  
  	ETH_IPADDR=`fw_printenv -n ipaddr_eth 2> /dev/null`
  	ETH_NETMASK=`fw_printenv -n netmask_eth 2> /dev/null || echo 255.255.255.0`
-@@ -51,6 +52,7 @@ create_system_files () {
+@@ -31,6 +33,10 @@ create_system_files () {
+ 	UDC_HANDLE_SUSPEND=`fw_printenv -n udc_handle_suspend 2> /dev/null || echo 0`
+ 	USB_ETH_MODE=`fw_printenv -n usb_ethernet_mode 2> /dev/null || echo rndis`
+ 
++	### /sbin/set-mac.sh ###
++	echo "#! /bin/sh" >$SET_MAC
++	echo "/sbin/ip link set eth0 address $(/usr/sbin/fw_printenv ethaddr | /usr/bin/cut -d '=' -f2)" >>$SET_MAC
++
+ 	### /etc/udhcpd.conf ###
+ 	echo "start $IPADDR_HOST" > $UDHCPD_CONF
+ 	echo "end $IPADDR_HOST" >> $UDHCPD_CONF
+@@ -47,10 +53,11 @@ create_system_files () {
+ 	if [ -n "$ETH_IPADDR" ]
+ 	then
+ 		echo -e "iface eth0 inet static" >> $IFAC
+-		echo -e "\taddress $ETH_IPADDR\n""\tnetmask $ETH_NETMASK\n" >> $IFAC
++		echo -e "\taddress $ETH_IPADDR\n""\tnetmask $ETH_NETMASK" >> $IFAC
  	else
- 		echo -e "iface eth0 inet dhcp\n" >> $IFAC
+-		echo -e "iface eth0 inet dhcp\n" >> $IFAC
++		echo -e "iface eth0 inet dhcp" >> $IFAC
  	fi
-+	echo -e "\tpre-up /sbin/ip link set eth0 address $ETHADDR" >>$IFAC
++	echo -e "\tpre-up $SET_MAC\n" >>$IFAC
  
  	### /etc/wpa.conf ###
  	if [ -n "$WLAN_SSID" ]
